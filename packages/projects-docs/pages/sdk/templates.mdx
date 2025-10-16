@@ -133,8 +133,8 @@ By default the template uses a universal image which gives you the most common t
 # ---- Builder: install deps & build ----
 FROM node:22-alpine AS builder
 
-# Install zsh (and optionally git, curl, etc.)
-RUN apk add --no-cache zsh git curl
+# Install zsh and bash (and optionally git, curl, etc.)
+RUN apk add --no-cache zsh bash git curl
 
 # Enable corepack (pnpm/yarn) if you use it; safe to keep on
 RUN corepack enable
