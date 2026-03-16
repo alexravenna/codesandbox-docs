@@ -1,0 +1,142 @@
+---
+title: Migration Guide
+description: How to migrate from CodeSandbox Repositories to GitHub Codespaces.
+---
+
+import { Callout } from 'nextra-theme-docs'
+
+# Migration guide: CodeSandbox Repos to GitHub Codespaces
+
+<Callout type="warning">
+CodeSandbox Repositories will no longer accept new imports starting **April 1, 2026**. Full support for repositories will end on **July 1, 2026**. We recommend migrating to GitHub Codespaces before these dates.
+</Callout>
+
+This guide walks you through moving your development workflow from CodeSandbox Repositories to GitHub Codespaces. The transition should take about 30 minutes for most projects.
+
+If you need help at any point, reach out to [support@codesandbox.io](mailto:support@codesandbox.io).
+
+## Vocabulary mapping
+
+Before you start, here's how CodeSandbox concepts translate to Codespaces.
+
+| CodeSandbox | Codespaces | Difference |
+| --- | --- | --- |
+| Sandbox | Codespace | A Sandbox is the branch. A Codespace is an instance of a branch. |
+| Forking a Sandbox | Creating a branch | In Codespaces, you create a git branch first, then launch a container for it. |
+| VM Snapshot | Prebuilds | CodeSandbox saves memory state. Codespaces pre-installs dependencies so you start fast. |
+| `.codesandbox/tasks.json` | `.devcontainer/devcontainer.json` | CodeSandbox uses a dedicated tasks file. Codespaces uses `postCreateCommand` or `postAttachCommand`. |
+
+## Transitioning the "instant" workflow
+
+### What you're used to (CodeSandbox)
+
+In CodeSandbox Repositories, you visit the main branch and the VM is already running with your tasks (like `npm start`) pre-executed. If you want to make changes, you click "Branch," which clones the running VM state into a new branch and URL instantly.
+
+### The new way (GitHub Codespaces)
+
+**From the browser:**
+
+1. Navigate to your repo on GitHub.
+2. Create a new branch.
+3. Click **Code** and then **Create Codespace on [branch]** for the full VM.
+
+**From VS Code desktop:**
+
+1. Open VS Code locally.
+2. Use the GitHub Codespaces extension to create or connect to environments directly.
+
+## Step-by-step: starting a feature
+
+### Step 1: Move tasks to `.devcontainer/devcontainer.json`
+
+Since you no longer have a `.codesandbox/tasks.json`, move those commands into the `.devcontainer/devcontainer.json` lifecycle hooks.
+
+**Where your commands go:**
+
+| CodeSandbox (`.codesandbox/tasks.json`) | Codespaces (`.devcontainer/devcontainer.json`) |
+| --- | --- |
+| `setupTasks` | `"postCreateCommand": "npm install"` |
+| `runTasks` | `"postAttachCommand": "npm start"` |
+
+**Example `.devcontainer/devcontainer.json`:**
+
+```json
+{
+  "name": "My Project",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "postCreateCommand": "npm install",
+  "postAttachCommand": "npm start",
+  "forwardPorts": [3000]
+}
+```
+
+<Callout emoji="⭐">
+**Note:** Use `postAttachCommand` (not `postStartCommand`) for tasks that should run each time you connect to the Codespace. This ensures your dev server starts automatically when you open the environment.
+</Callout>
+
+Place this file at `.devcontainer/devcontainer.json` in your repository root.
+
+### Step 2: Set up Prebuilds
+
+To replicate the "instant" feel of CodeSandbox where you don't wait for `npm install`, enable Prebuilds in your GitHub repo settings. This tells GitHub to run your setup scripts every time code is pushed, so the container is ready when you open it.
+
+1. Go to your repository on GitHub.
+2. Navigate to **Settings** > **Codespaces**.
+3. Under **Prebuild configuration**, click **Set up prebuild**.
+4. Select the branch and region, then save.
+
+### Step 3: Create a branch and Codespace
+
+In CodeSandbox, you "Forked" to branch. In the new workflow, you can create a Codespace from either the web or VS Code desktop.
+
+#### From the web
+
+1. Go to the GitHub repository.
+2. Create a new branch (e.g., `feat/new-ui`).
+3. Click **Code** > **Codespaces** > **+**.
+
+#### From VS Code desktop
+
+The Codespaces extension is built into VS Code:
+
+1. Open VS Code locally.
+2. Click the **Remote Explorer** icon (bottom-left green icon or sidebar).
+3. Select **GitHub Codespaces**.
+4. Your environment will be listed. Click to connect.
+
+<Callout emoji="⚠️">
+**Important:** A branch must already exist on GitHub before you can connect Codespaces to it. If you don't see your branch, create it first—either locally and push it to GitHub, or create it directly on GitHub.
+</Callout>
+
+## Key differences to know
+
+### Persistence
+
+In CodeSandbox, every change is "live." In Codespaces, your work is saved in the cloud VM, but you still need to **commit and push** for others to see changes in the repository.
+
+### Secrets and environment variables
+
+Move your sandbox environment variables to GitHub Codespaces Secrets:
+
+1. Go to GitHub **Settings** > **Codespaces** > **Secrets**.
+2. Click **New secret**.
+3. Add your key-value pairs and select which repositories can access them.
+
+### Collaboration
+
+CodeSandbox is "live" by default with real-time multiplayer. For Codespaces, use the **Live Share** extension within your Codespace to collaborate in real-time:
+
+1. Install the Live Share extension (it may already be included).
+2. Click **Live Share** in the bottom status bar.
+3. Share the generated link with collaborators.
+
+## Timeline
+
+| Date | What happens |
+| --- | --- |
+| **April 1, 2026** | New repository imports are disabled. Existing repositories continue to work. |
+| **July 1, 2026** | Full support for CodeSandbox Repositories ends. |
+
+## Need help?
+
+If you run into issues during migration or have questions about your specific setup, contact us at [support@codesandbox.io](mailto:support@codesandbox.io).
