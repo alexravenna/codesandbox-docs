@@ -24,7 +24,7 @@ Before you start, here's how CodeSandbox concepts translate to Codespaces.
 | Sandbox | Codespace | A Sandbox is the branch. A Codespace is an instance of a branch. |
 | Forking a Sandbox | Creating a branch | In Codespaces, you create a git branch first, then launch a container for it. |
 | VM Snapshot | Prebuilds | CodeSandbox saves memory state. Codespaces pre-installs dependencies so you start fast. |
-| `.codesandbox/tasks.json` | `.devcontainer/devcontainer.json` | CodeSandbox uses a dedicated tasks file. Codespaces uses `postCreateCommand` or `postAttachCommand`. |
+| `.codesandbox/tasks.json` | `.devcontainer/devcontainer.json` | CodeSandbox uses a dedicated tasks file. Codespaces uses `updateContentCommand` or `postAttachCommand`. |
 
 ## Transitioning the "instant" workflow
 
@@ -55,7 +55,7 @@ Since you no longer have a `.codesandbox/tasks.json`, move those commands into t
 
 | CodeSandbox (`.codesandbox/tasks.json`) | Codespaces (`.devcontainer/devcontainer.json`) |
 | --- | --- |
-| `setupTasks` | `"postCreateCommand": "npm install"` |
+| `setupTasks` | `"updateContentCommand": "npm install"` |
 | `runTasks` | `"postAttachCommand": "npm start"` |
 
 **Example `.devcontainer/devcontainer.json`:**
@@ -64,14 +64,14 @@ Since you no longer have a `.codesandbox/tasks.json`, move those commands into t
 {
   "name": "My Project",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
-  "postCreateCommand": "npm install",
+  "updateContentCommand": "npm install",
   "postAttachCommand": "npm start",
   "forwardPorts": [3000]
 }
 ```
 
 <Callout emoji="⭐">
-**Note:** Use `postAttachCommand` (not `postStartCommand`) for tasks that should run each time you connect to the Codespace. This ensures your dev server starts automatically when you open the environment.
+The `updateContentCommand` runs during prebuild creation and caches the results, so `npm install` completes before you even open the Codespace. Use `postAttachCommand` for tasks that should run each time you connect to the Codespace. This ensures your dev server starts automatically when you open the environment.
 </Callout>
 
 Place this file at `.devcontainer/devcontainer.json` in your repository root.
